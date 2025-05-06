@@ -10,7 +10,7 @@ import com.headfirst.designpattern.observer.WeatherStation;
 @RestController
 public class ApiController {
 
-    @GetMapping("/")
+    @GetMapping("/introduction")
     public void callExternalApi() {
         Queen queen = new Queen();
 		queen.setWweapon(new KnifeBehavior());
