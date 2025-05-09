@@ -1,6 +1,6 @@
 # 設計原則
 
-**①Intro:アプリケーション内の変化する部分を特定し、不変な部分と分離する**  
+## ①Intro:アプリケーション内の変化する部分を特定し、不変な部分と分離する
 目的：変わる部分を見つけて、他の部分から分離することで、変更の影響を局所化する  
 悪い例  
 ```
@@ -30,7 +30,7 @@ class Duck {
 }
 ```
 
-**②Intro:実装に対してではなく、インターフェースに対してプログラミングする**  
+## ②Intro:実装に対してではなく、インターフェースに対してプログラミングする
 目的：具体的なクラス（実装）に依存するのではなく、共通のインターフェースや抽象クラスに依存することで、柔軟な設計が可能  
 悪い例  
 ```
@@ -56,7 +56,7 @@ void checkout(PaymentProcessor processor) {
     processor.pay(100);
 }
 ```
-**③Intro:継承よりコンポジションの方が好ましい**  
+## ③Intro:継承よりコンポジションの方が好ましい
 目的：クラスを拡張するために継承（extends）を多用するのではなく、機能を持ったオブジェクトを「持つ」ようにして再利用する（コンポジション）方が柔軟になる  
 悪い例  
 ```
@@ -81,7 +81,7 @@ class User {
     }
 }
 ```
-**④Observer:相互にやり取りを行うオブジェクト間には、疎結合設計を使う** 
+## ④Observer:相互にやり取りを行うオブジェクト間には、疎結合設計を使う
 例  
 ```
 interface Observer {
@@ -101,7 +101,38 @@ class WeatherStation {
 }
 ```
 
-**⑤Decorator：クラスを拡張に対しては開かれた状態にするべきだが、変更に対しては閉じた状態にする**
+## ⑤Decorator：クラスを拡張に対しては開かれた状態にするべきだが、変更に対しては閉じた状態にする
+目的：既存のコードに手を加えずに、新しい振る舞いを追加できるようにする
+バグを誘発しにくくなり、変更に強いコードになる
+他の部分に影響を与えずに、機能拡張を安全に行えるようにする
+```
+// 図形インターフェース
+interface Shape {
+    double area();
+}
+
+// 具体的な図形クラス
+class Circle implements Shape {
+    private double radius;
+    public Circle(double radius) { this.radius = radius; }
+    public double area() { return Math.PI * radius * radius; }
+}
+
+class Rectangle implements Shape {
+    private double width, height;
+    public Rectangle(double width, double height) {
+        this.width = width; this.height = height;
+    }
+    public double area() { return width * height; }
+}
+
+// 面積計算クラス（Shapeの種類が増えても変更不要）
+class AreaCalculator {
+    public double totalArea(List<Shape> shapes) {
+        return shapes.stream().mapToDouble(Shape::area).sum();
+    }
+}
+```
 
 
 # introduction
