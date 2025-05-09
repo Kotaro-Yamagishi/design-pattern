@@ -1,11 +1,109 @@
-# introduction
-## 設計原則
-①アプリケーション内の変化する部分を特定し、不変な部分と分離する  
+#　設計原則
+**①Intro:アプリケーション内の変化する部分を特定し、不変な部分と分離する**  
 目的：変わる部分を見つけて、他の部分から分離することで、変更の影響を局所化する  
-②実装に対してではなく、インターフェースに対してプログラミングする  
+悪い例  
+```
+class Duck {
+    void quack() { System.out.println("ガーガー"); }
+    void swim() { System.out.println("泳ぐ"); }
+    void fly() { System.out.println("飛ぶ"); } // ← 種類によって違う（変化点）
+}
+```
+良い例  
+```
+interface FlyBehavior {
+    void fly();
+}
+
+class FlyWithWings implements FlyBehavior {
+    public void fly() { System.out.println("羽ばたいて飛ぶ"); }
+}
+
+class FlyNoWay implements FlyBehavior {
+    public void fly() { System.out.println("飛べない"); }
+}
+
+class Duck {
+    FlyBehavior flyBehavior;
+    void performFly() { flyBehavior.fly(); }
+}
+```
+
+**②Intro:実装に対してではなく、インターフェースに対してプログラミングする**  
 目的：具体的なクラス（実装）に依存するのではなく、共通のインターフェースや抽象クラスに依存することで、柔軟な設計が可能  
-③継承よりコンポジションの方が好ましい  
+悪い例  
+```
+// 悪い例：具体的なクラスに依存
+PaymentProcessor processor = new CreditCardProcessor(); // クラス名を知ってる
+processor.pay(100);
+```
+良い例  
+```
+interface PaymentProcessor {
+    void pay(int amount);
+}
+
+class CreditCardProcessor implements PaymentProcessor {
+    public void pay(int amount) { /* クレジットで支払い */ }
+}
+
+class PayPalProcessor implements PaymentProcessor {
+    public void pay(int amount) { /* PayPalで支払い */ }
+}
+
+void checkout(PaymentProcessor processor) {
+    processor.pay(100);
+}
+```
+**③Intro:継承よりコンポジションの方が好ましい**  
 目的：クラスを拡張するために継承（extends）を多用するのではなく、機能を持ったオブジェクトを「持つ」ようにして再利用する（コンポジション）方が柔軟になる  
+悪い例  
+```
+// NG: 継承を使って通知機能を埋め込む
+class User extends Notifier {
+    void sendWelcomeMessage() {
+        notify("ようこそ！");
+    }
+}
+```
+良い例  
+```
+class User {
+    private Notifier notifier;
+
+    public User(Notifier notifier) {
+        this.notifier = notifier;
+    }
+
+    void sendWelcomeMessage() {
+        notifier.notify("ようこそ！");
+    }
+}
+```
+**④Observer:相互にやり取りを行うオブジェクト間には、疎結合設計を使う** 
+例  
+```
+interface Observer {
+    void update(float temperature);
+}
+
+class WeatherStation {
+    private List<Observer> observers = new ArrayList<>();
+
+    void registerObserver(Observer o) { observers.add(o); }
+
+    void notifyObservers() {
+        for (Observer o : observers) {
+            o.update(currentTemp);
+        }
+    }
+}
+```
+
+**⑤Decorator：クラスを拡張に対しては開かれた状態にするべきだが、変更に対しては閉じた状態にする**
+
+
+# introduction
 
 ## コンポジションの必要性  
 あとからの仕様変更・拡張に強い、壊れにくいコードを作るため  
@@ -57,9 +155,8 @@ public class Car extends Vehicle {
 
 # observer
 ## Oberverパターンとは  
-あるオブジェクトの状態が変化すると、そのオブジェクトに依存している全てのオブジェクトに自動的に通知され、更新されるようにするという、オブジェクト感の1対多の依存関係が定義されている  
-## 設計原則  
-①相互にやり取りを行うオブジェクト間には、疎結合設計を使う  
+あるオブジェクトの状態が変化すると、そのオブジェクトに依存している全てのオブジェクトに自動的に通知され、更新されるようにするという、オブジェクト感の1対多の依存関係が定義されている    
+ 
 ## Observerパターンのメリット  
 - 疎結合になる（Observerそれぞれが値を管理する必要がない。Subjectの参照で済む）
 - 動的にオブサーバーを追加削除できる
@@ -75,11 +172,16 @@ public class Car extends Vehicle {
 1. 何かが変わった時に、誰に伝える必要があるか？  
 主役は何か？  
 変化を「見張る」必要があるのは誰か  
-モデルが更新された時、ビューーを自動更新したい    
-「状態変化右複数への通知」が自然に出てくるなら候補    
+モデルが更新された時、ビューを自動更新したい    
+「状態変化→複数への通知」が自然に出てくるなら候補    
 2. 通知先が固定か動的かを確認  
 通知する相手が固定 → 単純なコールバックでOKかも  
 通知する相手が動的（途中で追加・削除される）→ Observerパターンの出番  
 3. 「依存の方向性を一方向に保てるか？」を意識する  
 Subject（通知元）は Observer（通知先）を知らなくていい構造にできるのが理想  
 → これにより「疎結合」が実現できる  
+
+# Decorator
+## Decoratorパターンの定義
+オブジェクトに追加の責務を動的に付与する  
+デコレータはサブクラス化の大体となる、柔軟な機能拡張手段を備えている  
