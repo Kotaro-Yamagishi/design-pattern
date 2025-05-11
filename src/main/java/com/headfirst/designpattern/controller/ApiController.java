@@ -3,6 +3,7 @@ package com.headfirst.designpattern.controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.headfirst.designpattern.command.RemoteControlTest;
 import com.headfirst.designpattern.decorator.DecoratorExec;
 import com.headfirst.designpattern.factory.FactoryTestDrive;
 import com.headfirst.designpattern.introducation.KnifeBehavior;
@@ -10,7 +11,6 @@ import com.headfirst.designpattern.introducation.Queen;
 import com.headfirst.designpattern.observer.WeatherStation;
 import com.headfirst.singleton.ChocolateBoiler;
 import com.headfirst.singleton.EnumSingleton;
-import com.headfirst.singleton.Singleton;
 
 @RestController
 public class ApiController {
@@ -51,5 +51,11 @@ public class ApiController {
 
         EnumSingleton enumSingleton = EnumSingleton.UNIQUE_INSTANCE;
         System.out.println("Enum Singleton instance: " + enumSingleton);
+    }
+
+    @GetMapping("/command")
+    public void command() {
+        RemoteControlTest remote = new RemoteControlTest();
+        remote.test();
     }
 }
