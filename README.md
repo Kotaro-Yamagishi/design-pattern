@@ -134,6 +134,61 @@ class AreaCalculator {
 }
 ```
 
+## ⑥抽象に依存する。具象クラスに依存してはいけない
+目的：クライアント（使う側）は、実装の詳細（＝具象クラス）に依存せず、インターフェース（抽象）に依存せよ
+
+**「上位モジュール（使う側）」は「下位モジュール（具体的な処理）」に依存すべきでない
+両者ともに「抽象（インターフェース）」に依存すべき**
+
+ダメな例
+```
+class EmailService {
+    public void sendEmail(String to, String message) {
+        System.out.println("Sending email to " + to);
+    }
+}
+
+class Notification {
+    private EmailService emailService = new EmailService(); // ← 具象に依存している
+
+    public void notify(String user, String message) {
+        emailService.sendEmail(user, message);
+    }
+}
+```
+良い例
+```
+interface MessageSender {
+    void send(String to, String message);
+}
+
+class EmailService implements MessageSender {
+    public void send(String to, String message) {
+        System.out.println("Sending email to " + to);
+    }
+}
+
+class SmsService implements MessageSender {
+    public void send(String to, String message) {
+        System.out.println("Sending SMS to " + to);
+    }
+}
+
+class Notification {
+    private MessageSender sender;
+
+    public Notification(MessageSender sender) { // ← コンストラクタで注入
+        this.sender = sender;
+    }
+
+    public void notify(String user, String message) {
+        sender.send(user, message);
+    }
+}
+```
+
+
+
 
 # introduction
 
@@ -264,3 +319,95 @@ Decoratorパターンは継承を利用したケースとインターフェー�
   - インターフェースを使うことで、異なるクラス間で共通の型として扱うことが容易になります。
 
 # Factory
+## Factory Methodパターンとは
+オブジェクトを作成するためのインターフェースを定義するが、どのクラスをインスタンス化するかについてはサブクラスに決定させる
+Factory Methodにより、クラスはサブクラスにインスタンス化を委ねることができる
+
+## SimpleFactoryとFactory Methodの違い
+Simple Factory：「製品はここから全部作ってね！」という一括請負型
+Factory Method：「作り方は子クラスに任せるね」という方針型の抽象化
+
+#### simpleFactoryの例
+製品クラスの生成を1つの静的メソッドに集約するパターン
+※ GoFでは正式なパターンではないが、よく使われる
+
+```
+class ProductFactory {
+    public static Product createProduct(String type) {
+        switch (type) {
+            case "A": return new ProductA();
+            case "B": return new ProductB();
+            default: throw new IllegalArgumentException("Unknown type");
+        }
+    }
+}
+```
+
+🟢 メリット
+- 実装が簡単
+- 呼び出す側は new を知らずに済む（疎結合）
+
+🔴 デメリット
+- 製品が増えると switch が増えてしまい、OCP（開放閉鎖原則）違反
+- 継承や多態性の恩恵がない
+
+
+#### Factory Methodの例
+生成処理をサブクラスに委ねることで拡張性を高めるパターン
+```
+// 製品インターフェース
+interface Product {
+    void use();
+}
+
+// 各製品
+class ProductA implements Product {
+    public void use() { System.out.println("Using A"); }
+}
+class ProductB implements Product {
+    public void use() { System.out.println("Using B"); }
+}
+
+// Creator 抽象クラス
+abstract class Creator {
+    public abstract Product createProduct();
+}
+
+// 具体的な工場
+class ProductACreator extends Creator {
+    public Product createProduct() {
+        return new ProductA();
+    }
+}
+class ProductBCreator extends Creator {
+    public Product createProduct() {
+        return new ProductB();
+    }
+}
+```
+🟢 メリット
+- 新しい製品を追加しても既存コードに手を加えない（OCPを満たす）
+- 多態性を活かせる
+
+🔴 デメリット
+- 実装がやや複雑でクラスが増える
+
+## 疑問集
+### Factory Methodを使うメリット
+一言で言うと：
+**「何を作るか」と「どう作るか」を分離することで、拡張性・柔軟性・保守性を得るため**
+- OCP（開放/閉鎖原則）を守れる
+- Creatorが「生成だけ」に責任を持てる（SRPの徹底）
+- テストや依存性の注入（DI）がやりやすい
+  - 該当のメソッドに対してテスト用のMock（抽象クラスを継承しているMock）を差し込んで動作確認することが可能
+
+#### Factory Methodを利用しないと将来的にどう言うリスクが発生する可能性は？
+CreatorとProductを分離しないと、工場の中に製品の知識がハードコードされてしまう
+
+###　高水準コンポーネント
+アプリケーションの振る舞いやビジネスロジックを実装する部分。
+目的に沿った「何をするか」を定義する。
+
+### 低水準コンポーネント
+データベース・ファイル操作・HTTPなど、実際の手段（手足）を担う処理。
+「どうやってするか」の詳細。

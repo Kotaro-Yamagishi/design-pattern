@@ -6,5 +6,4 @@ public abstract class VeggiePizza extends Pizza {
         dough = "Crust";
         sauce = "Marinara Sauce";
     }
-    
 }
