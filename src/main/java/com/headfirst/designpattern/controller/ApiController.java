@@ -8,6 +8,9 @@ import com.headfirst.designpattern.factory.FactoryTestDrive;
 import com.headfirst.designpattern.introducation.KnifeBehavior;
 import com.headfirst.designpattern.introducation.Queen;
 import com.headfirst.designpattern.observer.WeatherStation;
+import com.headfirst.singleton.ChocolateBoiler;
+import com.headfirst.singleton.EnumSingleton;
+import com.headfirst.singleton.Singleton;
 
 @RestController
 public class ApiController {
@@ -35,5 +38,18 @@ public class ApiController {
     public void factory() {
         FactoryTestDrive factoryTestDrive = new FactoryTestDrive();
         factoryTestDrive.test();
+    }
+
+    @GetMapping("/singleton")
+    public void singleton() {
+        ChocolateBoiler boiler = ChocolateBoiler.getInstance();
+        boiler.fill();
+        boiler.boil();
+        boiler.drain();
+        System.out.println("Boiler is empty: " + boiler.isEmpty());
+        System.out.println("Boiler is boiled: " + boiler.isBoiled());
+
+        EnumSingleton enumSingleton = EnumSingleton.UNIQUE_INSTANCE;
+        System.out.println("Enum Singleton instance: " + enumSingleton);
     }
 }
