@@ -17,5 +17,14 @@ public class LightOffCommand implements Command {
             System.out.println("Light is not set.");
         }
     }
+
+    @Override
+    public void undo() {
+        if (light != null) {
+            light.on();
+        } else {
+            System.out.println("Light is not set.");
+        }
+    }
     
 }
