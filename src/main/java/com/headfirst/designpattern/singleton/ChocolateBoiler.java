@@ -1,4 +1,4 @@
-package com.headfirst.singleton;
+package com.headfirst.designpattern.singleton;
 
 public class ChocolateBoiler {
     private boolean empty;
