@@ -565,3 +565,55 @@ public class Light {
 アダプタは、インターフェースのが完成がないためにそのままでは連携できないクラスを連携させる
 
 Adapterパターンでは、変換を行うアダプタを作成すると、互換性のないインターフェースを持つクライアントを使用する
+
+## Adapterパターンを構成するコンポーネント
+
+#### Target
+クライアントが使いたいと思っている共通インターフェース
+```
+public interface Target {
+    void request();  // クライアントが呼び出したいメソッド
+}
+```
+
+#### Adaptee
+すでに存在するが、インターフェースが異なるクラス
+直接はクライアントから使えない（メソッド名が違う、引数の型が違う、など）
+```
+public class Adaptee {
+    public void specificRequest() {
+        System.out.println("Adaptee の specificRequest() を呼び出しました");
+    }
+}
+```
+
+#### Adapter
+AdapteeとTargetの橋渡しをするクラス
+クライアントがTargetとして呼び出すと、内部でAdapteeの処理を呼び出す
+```
+public class Adapter implements Target {
+    private Adaptee adaptee;
+
+    public Adapter(Adaptee adaptee) {
+        this.adaptee = adaptee;
+    }
+
+    @Override
+    public void request() {
+        // インターフェースが異なる呼び出しを変換
+        adaptee.specificRequest();
+    }
+}
+```
+
+#### Client
+Targetインターフェースしか知らない
+Adapter経由でAdapteeを間接的に利用している 
+```
+public class Main {
+    public static void main(String[] args) {
+        Target target = new Adapter(new Adaptee());
+        target.request();  // 実際には Adaptee の specificRequest が呼ばれる
+    }
+}
+```
