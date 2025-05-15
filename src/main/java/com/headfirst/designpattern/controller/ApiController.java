@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.headfirst.designpattern.adapter.DuckTestDrive;
 import com.headfirst.designpattern.command.RemoteControlTest;
 import com.headfirst.designpattern.decorator.DecoratorExec;
+import com.headfirst.designpattern.facade.HomeTheaterTestDrive;
 import com.headfirst.designpattern.factory.FactoryTestDrive;
 import com.headfirst.designpattern.introducation.KnifeBehavior;
 import com.headfirst.designpattern.introducation.Queen;
@@ -64,5 +65,11 @@ public class ApiController {
     public void adapter() {
         DuckTestDrive duckTestDrive = new DuckTestDrive();
         duckTestDrive.test();
+    }
+
+    @GetMapping("/facade")
+    public void facade() {
+        HomeTheaterTestDrive homeTheaterTestDrive = new HomeTheaterTestDrive();
+        homeTheaterTestDrive.test();
     }
 }
