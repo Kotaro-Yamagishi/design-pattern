@@ -13,6 +13,7 @@ import com.headfirst.designpattern.introducation.Queen;
 import com.headfirst.designpattern.observer.WeatherStation;
 import com.headfirst.designpattern.singleton.ChocolateBoiler;
 import com.headfirst.designpattern.singleton.EnumSingleton;
+import com.headfirst.designpattern.templatemethod.inheritance.BeverageTestDrive;
 
 @RestController
 public class ApiController {
@@ -72,4 +73,12 @@ public class ApiController {
         HomeTheaterTestDrive homeTheaterTestDrive = new HomeTheaterTestDrive();
         homeTheaterTestDrive.test();
     }
+
+    @GetMapping("/templatemethod/inheritance")
+    public void templateMethodInheritance() {
+        BeverageTestDrive beverageTestDrive = new BeverageTestDrive();  
+        beverageTestDrive.test();
+    }
+
+    
 }

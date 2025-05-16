@@ -1,6 +1,6 @@
 package com.headfirst.designpattern.templatemethod.inheritance;
 
-public class Tea extends CaffeineBeverageWithHook {
+public class TeaWithHook extends CaffeineBeverageWithHook {
     @Override
     void brew() {
         System.out.println("Steeping the tea");
