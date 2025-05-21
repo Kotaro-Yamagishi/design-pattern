@@ -10,6 +10,7 @@ import com.headfirst.designpattern.facade.HomeTheaterTestDrive;
 import com.headfirst.designpattern.factory.FactoryTestDrive;
 import com.headfirst.designpattern.introducation.KnifeBehavior;
 import com.headfirst.designpattern.introducation.Queen;
+import com.headfirst.designpattern.iterator.MenuTestDrive;
 import com.headfirst.designpattern.observer.WeatherStation;
 import com.headfirst.designpattern.singleton.ChocolateBoiler;
 import com.headfirst.designpattern.singleton.EnumSingleton;
@@ -80,5 +81,9 @@ public class ApiController {
         beverageTestDrive.test();
     }
 
-    
+    @GetMapping("/iterator")
+    public void iterator() {
+        MenuTestDrive menuTestDrive = new MenuTestDrive();
+        menuTestDrive.test();
+    }   
 }
