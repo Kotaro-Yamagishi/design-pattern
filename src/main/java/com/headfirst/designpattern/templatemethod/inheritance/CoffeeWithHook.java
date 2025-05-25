@@ -1,5 +1,7 @@
 package com.headfirst.designpattern.templatemethod.inheritance;
 
+import java.util.Scanner;
+
 public class CoffeeWithHook extends CaffeineBeverageWithHook {
     @Override
     void brew() {
@@ -25,8 +27,9 @@ public class CoffeeWithHook extends CaffeineBeverageWithHook {
     private String getUserInput() {
         String answer = null;
         System.out.print("Would you like milk and sugar with your coffee (y/n)? ");
-        java.util.Scanner in = new java.util.Scanner(System.in);
-        answer = in.nextLine();
+        try (Scanner in = new Scanner(System.in)) {
+            answer = in.nextLine();
+        }
         return answer;
     }
     
