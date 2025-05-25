@@ -202,6 +202,10 @@ class Notification {
 下位（部品）は 自分の役割だけに集中
 上位（制御側）が必要に応じて下位を呼び出す
 
+## 単一責務の原則
+**クラスを変更する理由は1つだけにする**
+クラスないの変更は避ける。コードの修正は、問題が忍び込む様々な機会を与えることになる。
+変更する理由が2つあると、クラスが将来変更される可能性が高くなり、変更があった場合は設計の2つの側面に影響を当てることになる
 
 # introduction
 
@@ -671,9 +675,44 @@ Template Methodは、アルゴリズムの構造を変えることなく、ア�
 ## Iteratorパターンとは
 内部表現を公開せずに、アグリゲートオブジェクトの要素に順次アクセスする方法を提供する
 
-#### 用語
-**アグリゲート**
 
+
+### 疑問
+異なる形式のコレクションに対して同様の振る舞いを持たせたいパターンはそう多くない気がする
+#### 用語
+**アグリゲート**：要素を格納しているコレクションの本体。イテレータを生成する役割を持つ
+
+```
+public interface Aggregate {
+    Iterator createIterator();
+}
+
+public class BookShelf implements Aggregate {
+    private List<Book> books = new ArrayList<>();
+
+    public void addBook(Book book) {
+        books.add(book);
+    }
+
+    public Book getBookAt(int index) {
+        return books.get(index);
+    }
+
+    public int getLength() {
+        return books.size();
+    }
+
+    @Override
+    public Iterator createIterator() {
+        return new BookShelfIterator(this);
+    }
+}
+
+```
+
+# Composite
+## Compositeパターンとは
+オブジェクトをツリー構造に構成して部分 - 全体階層を表現できる。Compositeパターンを使うと、クライアントはここのオブジェクトとオブジェクトコンポジションを統一的に扱うことができる。
 
 
 

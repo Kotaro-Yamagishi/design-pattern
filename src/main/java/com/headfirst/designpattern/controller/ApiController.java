@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.headfirst.designpattern.adapter.DuckTestDrive;
 import com.headfirst.designpattern.command.RemoteControlTest;
+import com.headfirst.designpattern.composite.MenuTestDriveForComposite;
 import com.headfirst.designpattern.decorator.DecoratorExec;
 import com.headfirst.designpattern.facade.HomeTheaterTestDrive;
 import com.headfirst.designpattern.factory.FactoryTestDrive;
@@ -86,4 +87,10 @@ public class ApiController {
         MenuTestDrive menuTestDrive = new MenuTestDrive();
         menuTestDrive.test();
     }   
+
+    @GetMapping("/composite")
+    public void composite() {
+        MenuTestDriveForComposite menuTestDriveForComposite = new MenuTestDriveForComposite();
+        menuTestDriveForComposite.test();
+    }
 }
