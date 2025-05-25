@@ -15,6 +15,7 @@ import com.headfirst.designpattern.iterator.MenuTestDrive;
 import com.headfirst.designpattern.observer.WeatherStation;
 import com.headfirst.designpattern.singleton.ChocolateBoiler;
 import com.headfirst.designpattern.singleton.EnumSingleton;
+import com.headfirst.designpattern.state.GumballMachineTestDrive;
 import com.headfirst.designpattern.templatemethod.inheritance.BeverageTestDrive;
 
 @RestController
@@ -92,5 +93,11 @@ public class ApiController {
     public void composite() {
         MenuTestDriveForComposite menuTestDriveForComposite = new MenuTestDriveForComposite();
         menuTestDriveForComposite.test();
+    }
+
+    @GetMapping("/state")
+    public void state() {
+        GumballMachineTestDrive gumballMachineTestDrive = new GumballMachineTestDrive();
+        gumballMachineTestDrive.test();
     }
 }
