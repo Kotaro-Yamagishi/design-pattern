@@ -756,3 +756,278 @@ public class BookShelf implements Aggregate {
 オブジェクトの内部状態が変化した際にオブジェクトの振る舞いを変更できる
 オブジェクトはそのクラスを変更したように見える
 
+## 疑問
+### これって処理が固定化されるから柔軟ではないような気がするけど、問題ないの？
+Stateパターンは「状態ごとの**振る舞いを明確に分けたいときに使う」**ためのパターンで、
+振る舞いが頻繁に変わるようなケースには向いていない（または別の手段がよい）。
+Stateパターンは「状態が明確で」「それぞれの状態でやるべき処理がはっきりしている」場合に非常に強力です。
+
+
+# Proxy
+
+## Proxyパターンを利用する代表的なケース
+### 遅延読み込み
+必要な時だけロードして効率化
+**重い処理などを必要になるまで遅らせる**
+呼び出し元や呼び出される先でインスタンスを管理しない
+一つ中継を挟み、そこでインスタンスを管理することで、必要なタイミングでインスタンスを生成し、またそのインスタンスを使い回すことが可能
+#### メリット
+- 起動やメモリのパフォーマンス向上
+- ユーザー体験の改善
+
+
+```
+public interface Image {
+    void display();
+}
+
+public class RealImage implements Image {
+    private String filename;
+
+    public RealImage(String filename) {
+        this.filename = filename;
+        loadFromDisk();
+    }
+
+    private void loadFromDisk() {
+        System.out.println("Loading image: " + filename);
+    }
+
+    @Override
+    public void display() {
+        System.out.println("Displaying image: " + filename);
+    }
+}
+
+public class ProxyImage implements Image {
+    private RealImage realImage;
+    private String filename;
+
+    public ProxyImage(String filename) {
+        this.filename = filename;
+    }
+
+    @Override
+    public void display() {
+        if (realImage == null) {
+            realImage = new RealImage(filename);
+        }
+        realImage.display();
+    }
+}
+
+
+public class Main {
+    public static void main(String[] args) {
+        Image image = new ProxyImage("photo.jpg");
+
+        System.out.println("画像を表示しないときはロードしません");
+        System.out.println("画像を初めて表示：");
+        image.display(); // ロードされて表示
+
+        System.out.println("2回目の表示：");
+        image.display(); // 再利用される（ロードなし）
+    }
+}
+
+```
+
+### アクセス制御
+不正アクセスを防ぐ
+**操作に対してユーザー権限などを事前チェックする**
+認可されていないユーザーが本物の操作を行えないようにする
+呼び出し元、呼び出され先でアクセス制御処理を入れたくない
+中継先で制御の処理を入れる（単一責任の原則）
+
+#### メリット
+- セキュリティ確保（認可の明確化）
+- 本体（RealSubject）の責任をシンプルにできる（SRP）
+- 拡張性の向上（権限追加・変更が容易）
+
+```
+public interface Settings {
+    void changeSetting();
+}
+
+public class RealSettings implements Settings {
+    @Override
+    public void changeSetting() {
+        System.out.println("設定を変更しました。");
+    }
+}
+
+public class SettingsProxy implements Settings {
+    private RealSettings realSettings;
+    private String role;
+
+    public SettingsProxy(String role) {
+        this.role = role;
+        this.realSettings = new RealSettings();
+    }
+
+    @Override
+    public void changeSetting() {
+        if ("admin".equals(role)) {
+            realSettings.changeSetting();
+        } else {
+            System.out.println("アクセス拒否：管理者のみ操作可能です。");
+        }
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Settings adminSettings = new SettingsProxy("admin");
+        Settings userSettings = new SettingsProxy("user");
+
+        adminSettings.changeSetting(); // 成功
+        userSettings.changeSetting(); // 拒否される
+    }
+}
+```
+
+### キャッシュProxy
+パフォーマンス最適化
+**高コストな処理の結果を再利用してパフォーマンスを上げる**
+高コストな処理をキャッシュして、同じ結果を繰り返し使えるようにする
+
+#### メリット
+- 高速化・負荷軽減
+- リクエストの最適化（例：API呼び出しの削減）
+- 本体クラスの変更なしにキャッシュロジックを追加可能
+
+```
+public interface ExpensiveOperation {
+    int compute(int input);
+}
+
+public class RealExpensiveOperation implements ExpensiveOperation {
+    @Override
+    public int compute(int input) {
+        System.out.println("重い計算を実行中...");
+        try { Thread.sleep(2000); } catch (InterruptedException e) {}
+        return input * input; // 仮の高コスト計算
+    }
+}
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class CacheProxy implements ExpensiveOperation {
+    private RealExpensiveOperation realOp = new RealExpensiveOperation();
+    private Map<Integer, Integer> cache = new HashMap<>();
+
+    @Override
+    public int compute(int input) {
+        if (cache.containsKey(input)) {
+            System.out.println("キャッシュから取得");
+            return cache.get(input);
+        } else {
+            int result = realOp.compute(input);
+            cache.put(input, result);
+            return result;
+        }
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        ExpensiveOperation op = new CacheProxy();
+
+        System.out.println(op.compute(10)); // 計算する
+        System.out.println(op.compute(10)); // キャッシュから取得
+    }
+}
+
+```
+
+### リモートProxy
+ネットワーク越しのオブジェクトにローカルのように見せかける
+
+#### メリット
+- ローカルとリモートのインタフェース統一
+- クライアントは通信の詳細を知らなくてよい
+- 疎結合な分散システムを実現しやすい
+
+```
+public interface RemoteService {
+    String fetchData(String id);
+}
+
+public class RealRemoteService implements RemoteService {
+    @Override
+    public String fetchData(String id) {
+        return "Server data for ID: " + id;
+    }
+}
+
+public class RemoteServiceProxy implements RemoteService {
+    private RealRemoteService realService;
+
+    public RemoteServiceProxy() {
+        // 通常ならここでソケット通信やHTTPクライアントなどを初期化
+        this.realService = new RealRemoteService(); // 擬似的に同一プロセス
+    }
+
+    @Override
+    public String fetchData(String id) {
+        System.out.println("通信開始: リモートサービスへリクエスト送信");
+        // 通信ラッパー
+        return realService.fetchData(id);
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        RemoteService service = new RemoteServiceProxy();
+        String result = service.fetchData("1234");
+        System.out.println("取得結果: " + result);
+    }
+}
+
+```
+
+### ログ・モニタリング
+操作の前後でログや監視処理を挿入
+
+#### メリット
+- ログや監視を外部に委譲できる（責任分離）
+- 本体クラスの変更なしで機能追加できる（オープン・クローズ原則）
+- デバッグやトラブル対応が容易に
+
+```
+public interface Service {
+    void process(String task);
+}
+
+public class RealService implements Service {
+    @Override
+    public void process(String task) {
+        System.out.println("タスク実行中: " + task);
+        try { Thread.sleep(1000); } catch (InterruptedException e) {}
+    }
+}
+
+public class LoggingServiceProxy implements Service {
+    private RealService realService = new RealService();
+
+    @Override
+    public void process(String task) {
+        long start = System.currentTimeMillis();
+        System.out.println("[LOG] タスク開始: " + task);
+
+        realService.process(task); // 実際の処理
+
+        long end = System.currentTimeMillis();
+        System.out.println("[LOG] タスク終了: " + task + " 所要時間: " + (end - start) + "ms");
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Service service = new LoggingServiceProxy();
+        service.process("レポート生成");
+    }
+}
+
+```
