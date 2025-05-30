@@ -2,6 +2,7 @@ package com.headfirst.designpattern.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.service.annotation.GetExchange;
 
 import com.headfirst.designpattern.adapter.DuckTestDrive;
 import com.headfirst.designpattern.command.RemoteControlTest;
@@ -13,6 +14,7 @@ import com.headfirst.designpattern.introducation.KnifeBehavior;
 import com.headfirst.designpattern.introducation.Queen;
 import com.headfirst.designpattern.iterator.MenuTestDrive;
 import com.headfirst.designpattern.observer.WeatherStation;
+import com.headfirst.designpattern.proxy.dynamic.MatchMakingTestDrive;
 import com.headfirst.designpattern.singleton.ChocolateBoiler;
 import com.headfirst.designpattern.singleton.EnumSingleton;
 import com.headfirst.designpattern.state.GumballMachineTestDrive;
@@ -99,5 +101,11 @@ public class ApiController {
     public void state() {
         GumballMachineTestDrive gumballMachineTestDrive = new GumballMachineTestDrive();
         gumballMachineTestDrive.test();
+    }
+
+    @GetMapping("/proxy/dynamic")
+    public void proxyDynamic() {
+        MatchMakingTestDrive matchMakingTestDrive = new MatchMakingTestDrive();
+        matchMakingTestDrive.test();
     }
 }
