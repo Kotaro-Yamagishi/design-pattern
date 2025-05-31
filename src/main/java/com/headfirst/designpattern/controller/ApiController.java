@@ -7,6 +7,7 @@ import org.springframework.web.service.annotation.GetExchange;
 import com.headfirst.designpattern.adapter.DuckTestDrive;
 import com.headfirst.designpattern.command.RemoteControlTest;
 import com.headfirst.designpattern.composite.MenuTestDriveForComposite;
+import com.headfirst.designpattern.compound.DuckSimulator;
 import com.headfirst.designpattern.decorator.DecoratorExec;
 import com.headfirst.designpattern.facade.HomeTheaterTestDrive;
 import com.headfirst.designpattern.factory.FactoryTestDrive;
@@ -107,5 +108,11 @@ public class ApiController {
     public void proxyDynamic() {
         MatchMakingTestDrive matchMakingTestDrive = new MatchMakingTestDrive();
         matchMakingTestDrive.test();
+    }
+
+    @GetMapping("/compound")
+    public void compound() {
+        DuckSimulator duckSimulator = new DuckSimulator();
+        duckSimulator.test();
     }
 }
