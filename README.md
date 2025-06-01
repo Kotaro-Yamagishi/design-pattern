@@ -1039,3 +1039,107 @@ public class Main {
 - Decoratorクラスは同じインターフェースを継承することで、振る舞いは変更せずに新しい機能を追加できるのがいい
 - Factoryパターンを使ってインスタンス生成を外部メソッドに委譲することで、テスト時などに差し替えることが容易
 - Compositeパターンを使えばリストのネストも可能そうだが、同様のメソッドを持っているものの使い回しの場合のみ可能という感じか（だからLeafという概念があるのだろうが）
+
+
+# Bridge
+## Bridgeパターンとは
+「抽象化」と「実装」を分離して、それぞれを独立に拡張できるようにする構造的パターンです。
+「階層構造が2つあるときに、それぞれを独立に拡張可能にするためのパターン」
+
+```
+// 実装のインターフェース（Implementor）
+interface DrawingAPI {
+    void drawCircle(double x, double y, double radius);
+}
+
+// 実装1
+class OpenGLAPI implements DrawingAPI {
+    public void drawCircle(double x, double y, double radius) {
+        System.out.println("OpenGL: Drawing circle at (" + x + "," + y + ") radius " + radius);
+    }
+}
+
+// 実装2
+class DirectXAPI implements DrawingAPI {
+    public void drawCircle(double x, double y, double radius) {
+        System.out.println("DirectX: Drawing circle at (" + x + "," + y + ") radius " + radius);
+    }
+}
+
+// 抽象クラス（Abstraction）
+abstract class Shape {
+    protected DrawingAPI drawingAPI;
+    public Shape(DrawingAPI drawingAPI) {
+        this.drawingAPI = drawingAPI;
+    }
+    public abstract void draw(); // 表示
+}
+
+// 拡張された抽象クラス（RefinedAbstraction）
+class Circle extends Shape {
+    private double x, y, radius;
+
+    public Circle(double x, double y, double radius, DrawingAPI drawingAPI) {
+        super(drawingAPI);
+        this.x = x;
+        this.y = y;
+        this.radius = radius;
+    }
+
+    public void draw() {
+        drawingAPI.drawCircle(x, y, radius);
+    }
+}
+
+// 利用例
+public class Main {
+    public static void main(String[] args) {
+        Shape circle1 = new Circle(1, 2, 3, new OpenGLAPI());
+        Shape circle2 = new Circle(4, 5, 6, new DirectXAPI());
+
+        circle1.draw(); // → OpenGL: Drawing...
+        circle2.draw(); // → DirectX: Drawing...
+    }
+}
+```
+
+## 他のデザインパターンとの違い
+他のデザインパターンは1つの軸に対して付け足していく、変更するイメージ
+Bridgeはそもそも軸が二つあり、親クラスもサブクラスも複数持つ
+
+### Bridge
+[Circle]──┐         抽象（Shape）
+[Square]──┘──> has-a [DrawingAPI]
+                          ├─ OpenGL
+                          └─ DirectX
+
+### Strategy
+[Context] ── has-a ──> [Strategy]
+                        ├─ ConcreteStrategyA（例: QuickSort）
+                        └─ ConcreteStrategyB（例: MergeSort）
+- Context: クライアントの利用クラス（例: Sorter）
+- Strategy: 共通のアルゴリズムインターフェース
+- ConcreteStrategyX: 具体的な実装を差し替え可能
+
+### Decrator
+[Client] ──> [Component]
+                ▲
+                │
+        [Decorator] ── has-a ──> [Component]
+                ▲
+        ┌───────┴────────┐
+[ConcreteDecoratorA]  [ConcreteDecoratorB]
+
+- Component: 基本インターフェース（例: Coffee）
+- Decorator: 同じインターフェースを持つが内部に Component を保持（再帰的構造）
+- ConcreteDecorator: 装飾を行う具体クラス
+
+### Adapter
+[Client] ──> [Target]
+                 ▲
+                 │
+          [Adapter] ──> [Adaptee]
+
+- Client: Targetを使いたい
+- Adaptee: 既存の使いにくいAPI（例: LegacyAPI）
+- Adapter: Targetを実装し、内部で Adaptee に変換する
