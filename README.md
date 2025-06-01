@@ -1149,3 +1149,64 @@ Bridgeはそもそも軸が二つあり、親クラスもサブクラスも複�
 - Client: Targetを使いたい
 - Adaptee: 既存の使いにくいAPI（例: LegacyAPI）
 - Adapter: Targetを実装し、内部で Adaptee に変換する
+
+
+# Builder
+## Builderパターンとは
+複雑なオブジェクトの構築処理を分離し、柔軟かつ読みやすくオブジェクトを生成できるようにするためのデザインパターン
+
+## Builderパターンのメリット
+- 複雑なオブジェクトの構築方法をカプセル化する
+- 複数手順のさまざまなプロセスでオブジェクト構築できる
+- 製品の内部表現をクライアントから隠蔽する
+- クライアントには抽象インターフェースしか見えない為、製品の実装を交換できる
+
+##　サンプルコード
+```
+public class User {
+    private final String name;       // 必須
+    private final int age;           // 任意
+    private final String email;      // 任意
+
+    // private コンストラクタ
+    private User(Builder builder) {
+        this.name = builder.name;
+        this.age = builder.age;
+        this.email = builder.email;
+    }
+
+    // Getter省略
+
+    // Builderクラス
+    public static class Builder {
+        private final String name;  // 必須
+        private int age = 0;        // デフォルト
+        private String email = "";  // デフォルト
+
+        public Builder(String name) {
+            this.name = name;
+        }
+
+        public Builder age(int age) {
+            this.age = age;
+            return this;
+        }
+
+        public Builder email(String email) {
+            this.email = email;
+            return this;
+        }
+
+        public User build() {
+            return new User(this);
+        }
+    }
+}
+
+User user = new User.Builder("山田太郎")
+                    .age(30)
+                    .email("taro@example.com")
+                    .build();
+
+```
+
